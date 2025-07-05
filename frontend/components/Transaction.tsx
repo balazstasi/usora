@@ -17,6 +17,9 @@ const Transaction = () => {
     case 11155111:
       txnHash = '0x486c6e80719147ade6574db437d6623507ac7f2ca533088b044514c5cada7358'; // vitalik.eth First Txn on Sepolia
       break;
+    case 545:
+      txnHash = '0x';
+      break;
   }
 
   const {data, isError, isLoading} = useTransaction({

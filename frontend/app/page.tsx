@@ -25,7 +25,7 @@ import WalletClient from 'components/WalletClient';
 import WatchPendingTransactions from 'components/WatchPendingTransactions';
 import {shorten} from 'lib/utils';
 import Image from 'next/image';
-import {useAccount, useDisconnect} from 'wagmi';
+import {useAccount, useConnect, useDisconnect} from 'wagmi';
 
 import {usePrivy, useWallets} from '@privy-io/react-auth';
 import {useSetActiveWallet} from '@privy-io/wagmi';
@@ -44,6 +44,7 @@ export default function Home() {
   // WAGMI hooks
   const {address, isConnected, isConnecting, isDisconnected} = useAccount();
   const {disconnect} = useDisconnect();
+  const {connect} = useConnect();
   const {setActiveWallet} = useSetActiveWallet();
 
   if (!ready) {
@@ -53,34 +54,6 @@ export default function Home() {
   return (
     <>
       <main className="min-h-screen bg-slate-200 p-4 text-slate-800">
-        <Image
-          className="mx-auto rounded-lg"
-          src={wagmiPrivyLogo}
-          alt="wagmi x privy logo"
-          width={400}
-          height={100}
-        />
-        <p className="my-4 text-center">
-          This demo showcases how you can integrate{' '}
-          <a href="https://wagmi.sh/" className="font-medium underline">
-            wagmi
-          </a>{' '}
-          alongside{' '}
-          <a href="https://www.privy.io/" className="font-medium underline">
-            Privy
-          </a>{' '}
-          in your React app. Login below to try it out!
-          <br />
-          For more information, check out{' '}
-          <a href="https://docs.privy.io/guide/guides/wagmi" className="font-medium underline">
-            our integration guide
-          </a>{' '}
-          or the{' '}
-          <a href="https://github.com/privy-io/wagmi-demo" className="font-medium underline">
-            source code
-          </a>{' '}
-          for this app.
-        </p>
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <div className="border-1 flex flex-col items-start gap-2 rounded border border-black bg-slate-100 p-3">
             <h1 className="text-4xl font-bold">Privy</h1>
@@ -118,7 +91,6 @@ export default function Home() {
             {ready && authenticated && (
               <>
                 <p className="mt-2">You are logged in with privy.</p>
-                <Button onClick_={connectWallet} cta="Connect another wallet" />
                 <Button onClick_={linkWallet} cta="Link another wallet" />
                 <textarea
                   value={JSON.stringify(wallets, null, 2)}
@@ -153,32 +125,15 @@ export default function Home() {
                 </p>
 
                 <Balance />
-                <Signer />
-                <SignMessage />
-                <SignTypedData />
-                <PublicClient />
-                <EnsName />
-                <EnsAddress />
-                <EnsAvatar />
-                <EnsResolver />
-                <SwitchNetwork />
-                <BlockNumber />
-                <SendTransaction />
-                <ContractRead />
-                <ContractReads />
-                <ContractWrite />
-                <ContractEvent />
-                <FeeData />
-                <Token />
-                <Transaction />
-                <WatchPendingTransactions />
-                <WalletClient />
-                <WaitForTransaction />
 
-                <h2 className="mt-6 text-2xl">useDisconnect</h2>
+                <SendTransaction />
+
+                <div className="h-full"></div>
+
                 <Button onClick_={disconnect} cta="Disconnect from WAGMI" />
               </>
             )}
+            {isDisconnected && <Button onClick_={connect} cta="Connect to WAGMI" />}
           </div>
         </div>
       </main>

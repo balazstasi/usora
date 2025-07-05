@@ -23,12 +23,14 @@ const privyConfig: PrivyClientConfig = {
   embeddedWallets: {
     createOnLogin: 'users-without-wallets',
     requireUserPasswordOnCreate: true,
-    noPromptOnSignature: false,
+    noPromptOnSignature: true,
+    showWalletUIs: true,
   },
   loginMethods: ['wallet', 'email', 'sms'],
   appearance: {
     showWalletLoginFirst: true,
   },
+  supportedChains: [mainnet, sepolia, flowTestnet],
 };
 
 export default function Providers({children}: {children: React.ReactNode}) {
