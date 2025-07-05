@@ -30,6 +30,18 @@ export const fetchAndVerifyAuthorization = async (
   }
 };
 
+export const getUserByEmail = async (email: string) => {
+  const appId = process.env.NEXT_PUBLIC_PRIVY_APP_ID as string;
+  const appSecret = process.env.PRIVY_APP_SECRET as string;
+  if (!appId || !appSecret) {
+    throw new Error("Missing Privy credentials");
+  }
+
+  const response = await createPrivyClient().getUserByEmail(email);
+
+  return response;
+};
+
 export const createPrivyClient = () => {
   return new PrivyClient(
     process.env.NEXT_PUBLIC_PRIVY_APP_ID as string,
