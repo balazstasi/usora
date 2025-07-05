@@ -2,7 +2,7 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { getAccessToken, usePrivy } from "@privy-io/react-auth";
 import Head from "next/head";
-import WalletList from "../components/WalletList";
+import WalletList from "../components/wallet-list";
 
 async function verifyToken() {
   const url = "/api/verify";
