@@ -7,7 +7,7 @@ dotenv.config();
 // --- CONFIG ---
 const FLOW_EVM_RPC_URL = process.env.FLOWEVM_RPC || 'https://testnet.evm.nodes.onflow.org/';
 const PRIVATE_KEY = process.env.DEPLOY_WALLET as `0x${string}`; // Set your deployer private key in .env
-const CONTRACT_ADDRESS = '0xAC56D6c27B142c2413f21478393c928f59FFD0Cf';
+const CONTRACT_ADDRESS = '0x79C167404fA6CBDe1f23BE565355723136a8C4c1';
 const RECIPIENT = process.env.TEST_ACCOUNT;
 const MINT_AMOUNT = '1000000'; // 1 USDC (6 decimals)
 
@@ -40,10 +40,6 @@ async function main() {
   if (!PRIVATE_KEY) throw new Error('DEPLOY_WALLET is not set in .env');
 
   const account = privateKeyToAccount(PRIVATE_KEY);
-  const publicClient = createPublicClient({
-    chain: flowTestnet,
-    transport: http(),
-  });
   const walletClient = createWalletClient({
     account,
     chain: flowTestnet,
@@ -53,15 +49,12 @@ async function main() {
   // Amount in 6 decimals (e.g., 1 USDC = 1_000_000)
   const amount = parseUnits(MINT_AMOUNT, 6);
 
-  const { request } = await publicClient.simulateContract({
+  const hash = await walletClient.writeContract({
     address: CONTRACT_ADDRESS as `0x${string}`,
     abi,
     functionName: 'mint',
     args: [RECIPIENT, amount],
-    account: account.address,
   });
-
-  const hash = await walletClient.writeContract(request);
   console.log('Mint tx sent! Hash:', hash);
 }
 
