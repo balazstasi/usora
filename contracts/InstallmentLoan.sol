@@ -76,6 +76,21 @@ contract InstallmentLoan {
         require(principal == installmentAmount * totalInstallments, "Principal must equal total installments");
         require(token != address(0), "Invalid token address");
 
+        // Transfer principal from lender to borrower
+        IERC20 usdc = IERC20(token);
+        uint256 allowance = usdc.allowance(msg.sender, address(this));
+        require(allowance >= principal, "Insufficient allowance for principal");
+        uint256 balance = usdc.balanceOf(msg.sender);
+        require(balance >= principal, "Lender has insufficient balance");
+        usdc.safeTransferFrom(msg.sender, borrower, principal);
+
+        require(borrower != address(0), "Invalid borrower");
+        require(principal > 0, "Principal must be > 0");
+        require(installmentAmount > 0, "Installment must be > 0");
+        require(totalInstallments > 0, "Installments must be > 0");
+        require(principal == installmentAmount * totalInstallments, "Principal must equal total installments");
+        require(token != address(0), "Invalid token address");
+
         loanCounter++;
         loans[loanCounter] = Loan({
             lender: msg.sender,
