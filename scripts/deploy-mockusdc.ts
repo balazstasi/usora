@@ -5,7 +5,7 @@ import MockUSDCArtifact from '../artifacts/contracts/MockUSDC.sol/MockUSDC.json'
 dotenv.config();
 
 // Define FlowEVM chain (update chainId if needed)
-const flowevm = defineChain({
+const flow = defineChain({
   id: 545,
   name: 'Flow EVM Testnet',
   network: 'flowevmtestnet',
@@ -21,19 +21,19 @@ async function main() {
   const initialSupply = parseUnits('1000000', 6);
 
   const rpcUrl = process.env.FLOWEVM_RPC;
-  const privateKey = process.env.PRIVATE_KEY;
+  const privateKey = process.env.DEPLOY_WALLET;
   if (!rpcUrl || !privateKey) {
-    throw new Error('FLOWEVM_RPC or PRIVATE_KEY not set in environment');
+    throw new Error('FLOWEVM_RPC or DEPLOY_WALLET not set in environment');
   }
 
   const account = privateKeyToAccount(privateKey as `0x${string}`);
   const publicClient = createPublicClient({
-    chain: flowevm,
+    chain: flow,
     transport: http(rpcUrl),
   });
   const walletClient = createWalletClient({
     account,
-    chain: flowevm,
+    chain: flow,
     transport: http(rpcUrl),
   });
 
@@ -44,7 +44,7 @@ async function main() {
     abi,
     bytecode: bytecode as `0x${string}`,
     args: [initialSupply],
-    chain: flowevm,
+    chain: flow,
   });
 
   const receipt = await publicClient.waitForTransactionReceipt({ hash });
