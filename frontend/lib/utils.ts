@@ -1,55 +1,36 @@
-import { AuthTokenClaims, PrivyClient } from "@privy-io/server-auth";
-import type { NextApiRequest, NextApiResponse } from "next";
+import type {
+  TransactionReceipt,
+  TransactionLegacy,
+  TransactionEIP1559,
+  TransactionEIP2930,
+} from 'viem';
+import type {GetTransactionData} from 'wagmi/query';
 
-export type APIError = {
-  error: string;
-  cause?: string;
+export const shorten = (address: string | undefined) => {
+  if (!address) return '';
+  return `${address.substring(0, 6)}...${address.substring(address.length - 4, address.length)}`;
 };
 
-/**
- * Authorizes a user to call an endpoint, returning either an error result or their verifiedClaims
- * @param req - The API request
- * @param res - The API response
- * @param client - A PrivyClient
- */
-export const fetchAndVerifyAuthorization = async (
-  req: NextApiRequest,
-  res: NextApiResponse,
-  client: PrivyClient
-): Promise<AuthTokenClaims | void> => {
-  const header = req.headers.authorization;
-  if (!header) {
-    return res.status(401).json({ error: "Missing auth token." });
-  }
-  const authToken = header.replace(/^Bearer /, "");
+export type AddressString = `0x${string}`;
 
-  try {
-    return client.verifyAuthToken(authToken);
-  } catch {
-    return res.status(401).json({ error: "Invalid auth token." });
-  }
-};
+export const stringifyTransaction = (
+  tx?:
+    | GetTransactionData<any, any>
+    | TransactionReceipt
+    | TransactionLegacy
+    | TransactionEIP1559
+    | TransactionEIP2930,
+) => {
+  if (!tx) return '{}';
 
-export const getUserByEmail = async (email: string) => {
-  const appId = process.env.NEXT_PUBLIC_PRIVY_APP_ID as string;
-  const appSecret = process.env.PRIVY_APP_SECRET as string;
-  if (!appId || !appSecret) {
-    throw new Error("Missing Privy credentials");
-  }
-
-  const response = await createPrivyClient().getUserByEmail(email);
-
-  return response;
-};
-
-export const createPrivyClient = () => {
-  return new PrivyClient(
-    process.env.NEXT_PUBLIC_PRIVY_APP_ID as string,
-    process.env.PRIVY_APP_SECRET as string,
-    {
-      walletApi: {
-        authorizationPrivateKey: process.env.SESSION_SIGNER_SECRET,
-      },
-    }
+  return JSON.stringify(
+    Object.fromEntries(
+      Object.entries(tx).map(([key, val]) => [
+        key,
+        typeof val === 'bigint' ? val.toString() : key === 'logs' ? `[${val.length} logs]` : val,
+      ]),
+    ),
+    null,
+    2,
   );
 };
