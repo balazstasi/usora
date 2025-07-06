@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 type buttonProps = {
   cta: string;
@@ -6,7 +6,7 @@ type buttonProps = {
   disabled?: boolean;
 };
 
-const Button = ({cta, onClick_, disabled}: buttonProps) => {
+const Button = ({ cta, onClick_, disabled }: buttonProps) => {
   if (disabled) {
   }
   return (

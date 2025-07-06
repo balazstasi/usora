@@ -1,38 +1,39 @@
-# Privy x Wagmi Demo
+# Privy Auth `create-next-app` Starter
 
-This is a demo NextJS app that uses both [`wagmi`](https://wagmi.sh/) and [Privy](https://www.privy.io/), connecting them with the [`@privy-io/wagmi`](https://www.npmjs.com/package/@privy-io/wagmi) package. 
+This is a template for integrating [**Privy Auth**](https://www.privy.io/) into a [NextJS](https://nextjs.org/) project. Check out the deployed app [here](https://create-next-app.privy.io/)!
 
-To try the demo, go to https://wagmi-app.vercel.app/ and login with Privy. As part of login, you'll either connect an external wallet (e.g. MetaMask) or create an embedded wallet associated with your login method. Once connected, click the buttons in the right sidebar to invoke various [`wagmi`](https://wagmi.sh/) hooks, like `useSignMessage`, to interface with your connected wallet. 
-
-**Check out our [`wagmi` integration guide](https://docs.privy.io/guide/guides/wagmi) for more guidance!**
+This demo uses NextJS's [App Router](https://nextjs.org/docs/app/building-your-application/routing). If you'd like to see an example using the [Pages Router](https://nextjs.org/docs/pages), just change the branch of this repository to [`main`](https://github.com/privy-io/create-next-app). 
 
 ## Setup
 
-1. Fork this repository, clone it, and open it in your terminal.
+1. Clone this repository and open it in your terminal. 
 ```sh
-git clone https://github.com/<your-github-handle>/wagmi-demo
+git clone https://github.com/privy-io/create-next-app
 ```
 
-2. Install the necessary dependencies with `npm`.
+2. Install the necessary dependencies (including [Privy Auth](https://www.npmjs.com/package/@privy-io/react-auth)) with `npm`.
 ```sh
 npm i 
 ```
 
-3. Initialize your environment variables by copying the `.env.example` file to an `.env.local` file. Then, in `.env.local`, paste your **Privy App ID** from the [Privy console](https://console.privy.io) and an [**Alchemy API Key**](https://www.alchemy.com/). 
+3. Initialize your environment variables by copying the `.env.example` file to an `.env.local` file. Then, in `.env.local`, [paste your Privy App ID from the dashboard](https://docs.privy.io/guide/dashboard/api-keys).
 ```sh
-# In your terminal, create .env.local from .env.local.example
-cp .env.local.example .env.local
+# In your terminal, create .env.local from .env.example
+cp .env.example .env.local
 
 # Add your Privy App ID to .env.local
 NEXT_PUBLIC_PRIVY_APP_ID=<your-privy-app-id>
-NEXT_PUBLIC_ALCHEMY_API_KEY=<your-alchemy-api-key>
 ```
 
 ## Building locally
 
-In your project directory, run `npm run dev`. You can now visit http://localhost:4000 to see your app and login with Privy!
+In your project directory, run `npm run dev`. You can now visit http://localhost:3000 to see your app and login with Privy!
+
 
 ## Check out:
-- `app/page.tsx` for how to connect external wallets and create embedded wallets using Privy
-- `components/providers.tsx` for how to wrap your app with the `PrivyProvider`, `WagmiProvider`, and `QueryClientProvider`
-- `components/*.tsx` for examples of calling `wagmi` hooks. The components are named after hook they call; for example, `components/SignMessage.tsx` calls the `useSignMessage` hook. 
+- `app/layout.tsx` for how to use the `PrivyProvider` and initialize it with your Privy App ID
+- `app/page.tsx` for how to use the `usePrivy` hook and implement a simple `login` button
+- `app/dashboard/page.tsx` for how to use the `usePrivy` hook, fields like `ready`, `authenticated`, and `user`, and methods like `linkWallet` and `logout`
+
+
+**Check out [our docs](https://docs.privy.io/) for more guidance around using Privy in your app!**
