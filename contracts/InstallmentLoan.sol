@@ -11,7 +11,6 @@ contract InstallmentLoan {
         address lender;
         address borrower;
         uint256 principal;
-        uint256 installmentAmount;
         uint256 totalInstallments;
         uint256 installmentsPaid;
         uint256 startTimestamp;
@@ -28,7 +27,6 @@ contract InstallmentLoan {
         address indexed lender,
         address indexed borrower,
         uint256 principal,
-        uint256 installmentAmount,
         uint256 totalInstallments,
         uint256 startTimestamp,
         uint256 installmentInterval,
@@ -56,7 +54,6 @@ contract InstallmentLoan {
      * @notice Create a new loan agreement
      * @param borrower The address of the borrower
      * @param principal The total amount to be lent (e.g. 1000 USDC)
-     * @param installmentAmount The amount for each installment (e.g. 100 USDC)
      * @param totalInstallments The total number of installments (e.g. 10)
      * @param installmentInterval The interval between installments in seconds (e.g. 1 week = 604800)
      * @param token The ERC20 token address (USDC)
@@ -64,17 +61,17 @@ contract InstallmentLoan {
     function createLoan(
         address borrower,
         uint256 principal,
-        uint256 installmentAmount,
         uint256 totalInstallments,
         uint256 installmentInterval,
         address token
     ) external returns (uint256) {
         require(borrower != address(0), "Invalid borrower");
         require(principal > 0, "Principal must be > 0");
-        require(installmentAmount > 0, "Installment must be > 0");
         require(totalInstallments > 0, "Installments must be > 0");
-        require(principal == installmentAmount * totalInstallments, "Principal must equal total installments");
+        require(principal % totalInstallments == 0, "Principal must be evenly divisible by installments");
         require(token != address(0), "Invalid token address");
+        uint256 installmentAmount = principal / totalInstallments;
+        require(installmentAmount > 0, "Installment must be > 0");
 
         // Transfer principal from lender to borrower
         IERC20 usdc = IERC20(token);
@@ -84,19 +81,11 @@ contract InstallmentLoan {
         require(balance >= principal, "Lender has insufficient balance");
         usdc.safeTransferFrom(msg.sender, borrower, principal);
 
-        require(borrower != address(0), "Invalid borrower");
-        require(principal > 0, "Principal must be > 0");
-        require(installmentAmount > 0, "Installment must be > 0");
-        require(totalInstallments > 0, "Installments must be > 0");
-        require(principal == installmentAmount * totalInstallments, "Principal must equal total installments");
-        require(token != address(0), "Invalid token address");
-
         loanCounter++;
         loans[loanCounter] = Loan({
             lender: msg.sender,
             borrower: borrower,
             principal: principal,
-            installmentAmount: installmentAmount,
             totalInstallments: totalInstallments,
             installmentsPaid: 0,
             startTimestamp: block.timestamp,
@@ -110,7 +99,6 @@ contract InstallmentLoan {
             msg.sender,
             borrower,
             principal,
-            installmentAmount,
             totalInstallments,
             block.timestamp,
             installmentInterval,
@@ -134,25 +122,26 @@ contract InstallmentLoan {
         IERC20 usdc = IERC20(loan.token);
         uint256 allowance = usdc.allowance(loan.borrower, address(this));
         uint256 balance = usdc.balanceOf(loan.borrower);
+        uint256 installmentAmount = loan.principal / loan.totalInstallments;
 
-        if (allowance < loan.installmentAmount) {
+        if (allowance < installmentAmount) {
             emit InstallmentFailed(loanId, loan.borrower, loan.installmentsPaid + 1, "Insufficient allowance");
             revert("Insufficient allowance");
         }
-        if (balance < loan.installmentAmount) {
+        if (balance < installmentAmount) {
             emit InstallmentFailed(loanId, loan.borrower, loan.installmentsPaid + 1, "Insufficient balance");
             revert("Insufficient balance");
         }
 
         // Transfer funds from borrower to lender
-        usdc.safeTransferFrom(loan.borrower, loan.lender, loan.installmentAmount);
+        usdc.safeTransferFrom(loan.borrower, loan.lender, installmentAmount);
         loan.installmentsPaid++;
 
         emit InstallmentCollected(
             loanId,
             loan.borrower,
             loan.installmentsPaid,
-            loan.installmentAmount,
+            installmentAmount,
             block.timestamp
         );
 
@@ -161,5 +150,23 @@ contract InstallmentLoan {
             emit LoanCompleted(loanId);
         }
     }
-}
 
+    /**
+     * @notice Returns a list of active loan IDs
+     */
+    function getActiveLoanIds() external view returns (uint256[] memory) {
+        uint256[] memory temp = new uint256[](loanCounter);
+        uint256 count = 0;
+        for (uint256 i = 1; i <= loanCounter; i++) {
+            if (loans[i].active) {
+                temp[count] = i;
+                count++;
+            }
+        }
+        uint256[] memory activeIds = new uint256[](count);
+        for (uint256 j = 0; j < count; j++) {
+            activeIds[j] = temp[j];
+        }
+        return activeIds;
+    }
+}
