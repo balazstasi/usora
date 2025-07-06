@@ -1,6 +1,7 @@
 {
   "scripts": {
-    "installment_automation": "node scripts/installment_automation.js"
+    "installment_automation": "node scripts/installment_automation.js",
+    "loan_repayment_check_once": "node scripts/loan_repayment_check_once.js"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox-viem": "^4.0.0",
