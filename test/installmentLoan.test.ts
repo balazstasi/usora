@@ -73,7 +73,6 @@ describe('InstallmentLoan', function () {
     });
     await publicClient.waitForTransactionReceipt({ hash: approveLenderHash });
 
-    const installmentAmount = parseUnits('10', 6); // 10 USDC
     const totalInstallments = 10;
     const installmentInterval = 5; // 5 seconds for faster testing
 
@@ -84,7 +83,6 @@ describe('InstallmentLoan', function () {
       args: [
         borrowerAccount.address,
         principal,
-        installmentAmount,
         totalInstallments,
         installmentInterval,
         MOCK_USDC_ADDRESS,

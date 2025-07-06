@@ -1,5 +1,4 @@
 {
-  "type": "module",
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox-viem": "^4.0.0",
     "@types/dotenv": "^6.1.1",
