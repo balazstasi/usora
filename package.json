@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "installment_automation": "node scripts/installment_automation.js"
+  },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox-viem": "^4.0.0",
     "@types/dotenv": "^6.1.1",
