@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import Portal from "../components/graphics/portal";
 import { useLogin } from "@privy-io/react-auth";
@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 export default function Login() {
   const router = useRouter();
   const { login } = useLogin({
-    onComplete: () => router.push("/dashboard"),
+    onComplete: () => router.push("/home"),
   });
 
   return (
