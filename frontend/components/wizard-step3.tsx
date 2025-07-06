@@ -17,6 +17,8 @@ import {
 import { format, addWeeks, addMonths } from "date-fns";
 import type { Step1Data, Step2Data } from "@/types";
 import ContractWrite from "./contract-write";
+import { erc20Abi } from "viem";
+import { useAccount, useBalance, useReadContract } from "wagmi";
 
 interface WizardStep3Props {
   step1Data: Step1Data;
@@ -88,6 +90,16 @@ export function WizardStep3({
       onBack();
     }, 150);
   };
+
+  const { address } = useAccount();
+  const { data, isError, isLoading } = useBalance({ address });
+  const result = useReadContract({
+    address,
+    abi: erc20Abi,
+    functionName: "balanceOf",
+  });
+
+  console.log({ result });
 
   return (
     <div className="px-4 space-y-6">

@@ -13,7 +13,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import type { ConfirmationDialogProps } from "@/types";
-import { useAccount, useBalance } from "wagmi";
+import { useAccount, useBalance, useReadContract } from "wagmi";
+import { erc20Abi } from "viem";
 
 export function ConfirmationDialog({
   isOpen,
@@ -31,6 +32,13 @@ export function ConfirmationDialog({
 
   const { address } = useAccount();
   const { data, isError, isLoading } = useBalance({ address });
+  const result = useReadContract({
+    address,
+    abi: erc20Abi,
+    functionName: "balanceOf",
+  });
+
+  console.log({ result });
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -67,7 +75,9 @@ export function ConfirmationDialog({
               </div>
               <div>
                 <span className="text-slate-600">Total Amount:</span>
-                <p className="font-medium text-lg">${totalAmount.toFixed(4) data?.symbol}</p>
+                <p className="font-medium text-lg">
+                  ${totalAmount + data?.value}
+                </p>
               </div>
               <div>
                 <span className="text-slate-600">Installments:</span>
