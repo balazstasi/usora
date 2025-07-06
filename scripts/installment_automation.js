@@ -7,16 +7,17 @@ dotenv.config();
 
 // === CONFIGURATION ===
 const RPC_URL = process.env.FLOWEVM_RPC || 'https://testnet.flowevm.nodes.onflow.org/'; // Flow EVM testnet
-const CONTRACT_ADDRESS = '0xFeDBf40871a7A48a035F43B5B2dB5cDcf2405D40';
-const ABI_PATH = './artifacts/contracts/InstallmentLoan.sol/InstallmentLoan.json';
+const CONTRACT_ADDRESS = process.env.INSTALLMENT_LOAN_CONTRACT_ADDRESS;
+const INSTALLMENT_LOAN_ARTIFACT_PATH = './artifacts/contracts/InstallmentLoan.sol/InstallmentLoan.json';
 const TEST_ACCOUNT_PRIVATE_KEY = process.env.TEST_ACCOUNT_PRIVATE_KEY;
+const REFRESH_INTERVAL = 30 * 1000; // 30 seconds
 
 if (!TEST_ACCOUNT_PRIVATE_KEY) {
   throw new Error('TEST_ACCOUNT_PRIVATE_KEY not set in .env');
 }
 
 // Load ABI
-const abiJson = JSON.parse(fs.readFileSync(ABI_PATH));
+const abiJson = JSON.parse(fs.readFileSync(INSTALLMENT_LOAN_ARTIFACT_PATH));
 const abi = abiJson.abi;
 
 const publicClient = createPublicClient({
@@ -39,10 +40,21 @@ const walletClient = createWalletClient({
   transport: http(RPC_URL),
 });
 
-const LOAN_IDS = [1]; // Update as needed
-
 async function checkAndCollect() {
-  for (const loanId of LOAN_IDS) {
+  let activeLoanIds;
+  try {
+    activeLoanIds = await publicClient.readContract({
+      address: CONTRACT_ADDRESS,
+      abi,
+      functionName: 'getActiveLoanIds',
+      args: [],
+    });
+  } catch (err) {
+    console.error('Failed to fetch active loan IDs:', err.shortMessage || err.message);
+    return;
+  }
+
+  for (const loanId of activeLoanIds) {
     try {
       // Read loan details
       const loan = await publicClient.readContract({
@@ -80,7 +92,6 @@ async function checkAndCollect() {
   }
 }
 
-// Run every 60 seconds
-setInterval(checkAndCollect, 60 * 1000);
+setInterval(checkAndCollect, REFRESH_INTERVAL);
 
-console.log('Installment automation bot started.');
+console.log(`Installment automation bot started with refresh interval ${REFRESH_INTERVAL / 1000} seconds.`);

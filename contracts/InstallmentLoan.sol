@@ -150,5 +150,23 @@ contract InstallmentLoan {
             emit LoanCompleted(loanId);
         }
     }
-}
 
+    /**
+     * @notice Returns a list of active loan IDs
+     */
+    function getActiveLoanIds() external view returns (uint256[] memory) {
+        uint256[] memory temp = new uint256[](loanCounter);
+        uint256 count = 0;
+        for (uint256 i = 1; i <= loanCounter; i++) {
+            if (loans[i].active) {
+                temp[count] = i;
+                count++;
+            }
+        }
+        uint256[] memory activeIds = new uint256[](count);
+        for (uint256 j = 0; j < count; j++) {
+            activeIds[j] = temp[j];
+        }
+        return activeIds;
+    }
+}
