@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { CreditCard } from "lucide-react"
-import { format } from "date-fns"
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { CreditCard } from "lucide-react";
+import { format } from "date-fns";
 import {
   Dialog,
   DialogContent,
@@ -11,17 +11,26 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import type { ConfirmationDialogProps } from "@/types"
+} from "@/components/ui/dialog";
+import type { ConfirmationDialogProps } from "@/types";
+import { useAccount, useBalance } from "wagmi";
 
-export function ConfirmationDialog({ isOpen, onClose, onConfirm, transactionData }: ConfirmationDialogProps) {
-  const { mode, recipientEmail, totalAmount, installments } = transactionData
-  const isLendingMode = mode === "lending"
+export function ConfirmationDialog({
+  isOpen,
+  onClose,
+  onConfirm,
+  transactionData,
+}: ConfirmationDialogProps) {
+  const { mode, recipientEmail, totalAmount, installments } = transactionData;
+  const isLendingMode = mode === "lending";
 
   const handleConfirm = () => {
-    onConfirm(transactionData)
-    onClose()
-  }
+    onConfirm(transactionData);
+    onClose();
+  };
+
+  const { address } = useAccount();
+  const { data, isError, isLoading } = useBalance({ address });
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -32,18 +41,25 @@ export function ConfirmationDialog({ isOpen, onClose, onConfirm, transactionData
             Confirm {isLendingMode ? "Lending Request" : "Payment Schedule"}
           </DialogTitle>
           <DialogDescription>
-            Please review the details below before proceeding with your transaction.
+            Please review the details below before proceeding with your
+            transaction.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">
           {/* Transaction Summary */}
           <div className="bg-slate-50 p-4 rounded-lg space-y-3">
-            <h3 className="font-semibold text-slate-900">Transaction Summary</h3>
+            <h3 className="font-semibold text-slate-900">
+              Transaction Summary
+            </h3>
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
                 <span className="text-slate-600">Mode:</span>
-                <p className="font-medium">{isLendingMode ? "Lending with Repayment" : "Scheduled Payments"}</p>
+                <p className="font-medium">
+                  {isLendingMode
+                    ? "Lending with Repayment"
+                    : "Scheduled Payments"}
+                </p>
               </div>
               <div>
                 <span className="text-slate-600">Recipient:</span>
@@ -51,7 +67,7 @@ export function ConfirmationDialog({ isOpen, onClose, onConfirm, transactionData
               </div>
               <div>
                 <span className="text-slate-600">Total Amount:</span>
-                <p className="font-medium text-lg">${totalAmount.toFixed(2)}</p>
+                <p className="font-medium text-lg">${totalAmount.toFixed(4) data?.symbol}</p>
               </div>
               <div>
                 <span className="text-slate-600">Installments:</span>
@@ -67,18 +83,27 @@ export function ConfirmationDialog({ isOpen, onClose, onConfirm, transactionData
             </h3>
             <div className="max-h-60 overflow-y-auto space-y-2">
               {installments.map((installment, index) => (
-                <div key={installment.id} className="flex justify-between items-center p-3 border rounded-lg">
+                <div
+                  key={installment.id}
+                  className="flex justify-between items-center p-3 border rounded-lg"
+                >
                   <div className="flex items-center gap-3">
                     <Badge variant="outline">#{index + 1}</Badge>
                     <div>
-                      <p className="font-medium">${installment.amount?.toFixed(2)}</p>
+                      <p className="font-medium">
+                        ${installment.amount?.toFixed(2)}
+                      </p>
                       <p className="text-sm text-slate-600">
-                        {installment.date ? format(installment.date, "MMM dd, yyyy") : "No date set"}
+                        {installment.date
+                          ? format(installment.date, "MMM dd, yyyy")
+                          : "No date set"}
                       </p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm text-slate-600">{isLendingMode ? "Expected" : "Sending"}</p>
+                    <p className="text-sm text-slate-600">
+                      {isLendingMode ? "Expected" : "Sending"}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -113,5 +138,5 @@ export function ConfirmationDialog({ isOpen, onClose, onConfirm, transactionData
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
